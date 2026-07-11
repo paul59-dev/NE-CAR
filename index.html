@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Camion</title>
+    <!-- Balises obligatoires pour la PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link class="apple-touch-icon" href="icon-192.png">
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --border: #e0e0e0;
+            --border-dark: #000000;
+            --gray-light: #f5f5f5;
+            --gray-dark: #1a1a1a;
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 24px;
+            max-width: 650px;
+            margin: 0 auto;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        #logo {
+            width: 64px;
+            height: 64px;
+            fill: none;
+            stroke: var(--text);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        nav {
+            display: flex;
+            gap: 8px;
+            background-color: var(--gray-light);
+            padding: 6px;
+            border-radius: var(--radius-lg);
+        }
+
+        nav button {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        nav button.active {
+            background-color: var(--text);
+            color: var(--bg);
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            background-color: var(--gray-light);
+            border: 1px solid transparent;
+            padding: 14px 18px;
+            color: var(--text);
+            font-size: 0.95rem;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--border-dark);
+            background-color: var(--bg);
+        }
+
+        .form-group {
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row input, .form-row select {
+            flex: 1;
+        }
+
+        .btn-add, .btn-save {
+            background-color: var(--gray-dark);
+            color: var(--bg);
+            border: none;
+            padding: 14px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-add:hover, .btn-save:hover {
+            background-color: var(--text);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 4px 2px;
+            user-select: none;
+            flex: 1;
+        }
+
+        .checkbox-label input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--text);
+            cursor: pointer;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            padding-left: 4px;
+        }
+
+        .stock-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stock-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg);
+            transition: background-color 0.2s ease;
+        }
+
+        .stock-item.alert {
+            background-color: var(--gray-light);
+            border-color: transparent;
+        }
+
+        .stock-item.edit-mode-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            background-color: var(--bg);
+            border: 1px solid var(--text);
+        }
+
+        .item-info h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .item-info p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .item-qty {
+            font-size: 1.05rem;
+            font-weight: 600;
+            font-family: monospace;
+            margin-right: 8px;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .btn-qty, .btn-icon {
+            background-color: var(--bg);
+            border: 1px solid var(--border);
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .btn-icon {
+            font-size: 0.95rem;
+            border: none;
+            color: #888;
+        }
+
+        .btn-qty:hover, .btn-icon:hover {
+            border-color: var(--border-dark);
+            background-color: var(--gray-light);
+            color: var(--text);
+        }
+
+        .btn-icon.btn-delete-item:hover {
+            color: #cc0000;
+            background-color: #ffeeee;
+        }
+
+        .empty-message {
+            font-style: italic;
+            color: #777;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            background-color: var(--gray-light);
+            border-radius: var(--radius-md);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+       <div class="brand-container">
+            <img src="logo-ne.webp" id="logo" alt="Logo">
+            <h1>Stock Camion</h1>
+        </div>
+        
+        <nav>
+            <button id="btn-main" class="active" onclick="switchView('main')">Principal</button>
+            <button id="btn-all" onclick="switchView('all')">Tout le Stock</button>
+        </nav>
+    </header>
+
+    <div class="controls">
+        <input type="text" id="search-bar" placeholder="Rechercher une pièce..." oninput="render()">
+    </div>
+
+    <div id="view-main" class="view active">
+        <h2>Pièces Prioritaires</h2>
+        <div id="main-stock-list" class="stock-grid"></div>
+    </div>
+
+    <div id="view-all" class="view">
+        <h2>Nouvelle Pièce</h2>
+        <div class="form-group">
+            <input type="text" id="item-name" placeholder="Nom de la pièce (ex: Diffuseur Sonore)">
+            <div class="form-row">
+                <input type="number" id="item-max" placeholder="Limite Max (ex: 2)" min="1">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="item-is-main" checked> Mettre en Principal
+                </label>
+            </div>
+            <button class="btn-add" onclick="addItem()">Ajouter au catalogue</button>
+        </div>
+
+        <h2>Inventaire Complet</h2>
+        <div id="all-stock-list" class="stock-grid"></div>
+    </div>
+
+    <script>
+        // Utilisation du localStorage
+        let inventory = JSON.parse(localStorage.getItem('truck_inventory')) || [];
+        // Stocke l'ID de l'élément en cours d'édition (null si aucun)
+        let editingId = null;
+
+        function saveToStorage() {
+            localStorage.setItem('truck_inventory', JSON.stringify(inventory));
+        }
+
+        function switchView(viewName) {
+            editingId = null; // Annuler l'édition en cours si on change de page
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+            if (viewName === 'main') {
+                document.getElementById('view-main').classList.add('active');
+                document.getElementById('btn-main').classList.add('active');
+            } else {
+                document.getElementById('view-all').classList.add('active');
+                document.getElementById('btn-all').classList.add('active');
+            }
+            render();
+        }
+
+        function addItem() {
+            const nameInput = document.getElementById('item-name');
+            const maxInput = document.getElementById('item-max');
+            const isMainInput = document.getElementById('item-is-main');
+
+            const name = nameInput.value.trim();
+            const max = parseInt(maxInput.value, 10);
+
+            if (!name || isNaN(max) || max <= 0) {
+                alert("Veuillez entrer un nom et une limite maximum valide.");
+                return;
+            }
+
+            const newItem = { id: Date.now(), name: name, current: 0, max: max, isMain: isMainInput.checked };
+            inventory.push(newItem);
+            saveToStorage();
+            render();
+
+            nameInput.value = '';
+            maxInput.value = '';
+        }
+
+        function deleteItem(id) {
+            if(confirm("Supprimer définitivement cette pièce du stock ?")) {
+                inventory = inventory.filter(item => item.id !== id);
+                if (editingId === id) editingId = null;
+                saveToStorage();
+                render();
+            }
+        }
+
+        function adjustQty(id, amount) {
+            const item = inventory.find(i => i.id === id);
+            if (item) {
+                const newQty = item.current + amount;
+                if (newQty >= 0 && newQty <= item.max) {
+                    item.current = newQty;
+                    saveToStorage();
+                    render();
+                }
+            }
+        }
+
+        // Active le mode édition pour une pièce
+        function startEdit(id) {
+            editingId = id;
+            render();
+        }
+
+        // Enregistre les modifications apportées à la pièce
+        function saveEdit(id) {
+            const item = inventory.find(i => i.id === id);
+            if (item) {
+                const editName = document.getElementById(`edit-name-${id}`).value.trim();
+                const editCurrent = parseInt(document.getElementById(`edit-current-${id}`).value, 10);
+                const editMax = parseInt(document.getElementById(`edit-max-${id}`).value, 10);
+                const editMain = document.getElementById(`edit-main-${id}`).value === 'true';
+
+                if (!editName || isNaN(editMax) || editMax <= 0 || isNaN(editCurrent) || editCurrent < 0) {
+                    alert("Champs invalides. Vérifiez le nom et les quantités.");
+                    return;
+                }
+
+                item.name = editName;
+                item.max = editMax;
+                item.isMain = editMain;
+                
+                // On applique la quantité saisie en veillant à ce qu'elle ne dépasse pas le nouveau max
+                item.current = editCurrent > item.max ? item.max : editCurrent;
+
+                editingId = null;
+                saveToStorage();
+                render();
+            }
+        }
+
+        function render() {
+            const searchQuery = document.getElementById('search-bar').value.toLowerCase();
+            const mainContainer = document.getElementById('main-stock-list');
+            const allContainer = document.getElementById('all-stock-list');
+
+            mainContainer.innerHTML = '';
+            allContainer.innerHTML = '';
+
+            inventory.forEach(item => {
+                if (searchQuery && !item.name.toLowerCase().includes(searchQuery)) return;
+
+                let itemHtml = '';
+
+                if (editingId === item.id) {
+                    // CODE HTML SI L'ÉLÉMENT EST EN MODE ÉDITION (Ajout du champ Quantité Actuelle)
+                    itemHtml = `
+                        <div class="stock-item edit-mode-item">
+                            <input type="text" id="edit-name-${item.id}" value="${item.name}" placeholder="Nom de la pièce">
+                            <div class="form-row">
+                                <input type="number" id="edit-current-${item.id}" value="${item.current}" placeholder="Qté Actuelle" min="0">
+                                <input type="number" id="edit-max-${item.id}" value="${item.max}" placeholder="Max" min="1">
+                                <select id="edit-main-${item.id}">
+                                    <option value="true" ${item.isMain ? 'selected' : ''}>Principal</option>
+                                    <option value="false" ${!item.isMain ? 'selected' : ''}>Réserve</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <button class="btn-save" style="flex: 1; padding: 10px;" onclick="saveEdit(${item.id})">Enregistrer</button>
+                                <button class="btn-qty" style="width: auto; padding: 0 15px; font-size:0.9rem;" onclick="editingId = null; render();">Annuler</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // CODE HTML EN MODE NORMAL AVEC LE BOUTON CRAYON (ÉDITER)
+                    const isAlert = item.current < item.max;
+                    itemHtml = `
+                        <div class="stock-item ${isAlert ? 'alert' : ''}">
+                            <div class="item-info">
+                                <h3>${item.name}</h3>
+                                <p>${item.isMain ? 'Stock Principal' : 'Réserve'}</p>
+                            </div>
+                            <div class="item-actions">
+                                <span class="item-qty">${item.current}/${item.max}</span>
+                                <button class="btn-qty" onclick="adjustQty(${item.id}, -1)">−</button>
+                                <button class="btn-qty" onclick="adjustQty(${item.id}, 1)">+</button>
+                                <!-- Bouton Modifier (Crayon) -->
+                                <button class="btn-icon" title="Modifier" onclick="startEdit(${item.id})">✏️</button>
+                                <button class="btn-icon btn-delete-item" title="Supprimer" onclick="deleteItem(${item.id})">✕</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (item.isMain) mainContainer.insertAdjacentHTML('beforeend', itemHtml);
+                allContainer.insertAdjacentHTML('beforeend', itemHtml);
+            });
+
+            if (mainContainer.innerHTML === '') mainContainer.innerHTML = '<div class="empty-message">Aucune pièce prioritaire.</div>';
+            if (allContainer.innerHTML === '') allContainer.innerHTML = '<div class="empty-message">Le stock est vide.</div>';
+        }
+
+        render();
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker enregistré !'))
+                    .catch(err => console.log('Erreur SW', err));
+            });
+        }
+    </script>
+</body>
+</html>
