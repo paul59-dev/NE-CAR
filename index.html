@@ -9,7 +9,8 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link class="apple-touch-icon" href="icon-192.png">
+    <!-- Utilisation directe de ton image webp pour l'icône iOS -->
+    <link rel="apple-touch-icon" href="logo-ne.webp">
 
     <style>
         :root {
@@ -74,6 +75,7 @@
             background-color: var(--gray-light);
             padding: 6px;
             border-radius: var(--radius-lg);
+            margin-bottom: 20px;
         }
 
         nav button {
@@ -93,8 +95,12 @@
             color: var(--bg);
         }
 
-        .controls {
-            margin-bottom: 20px;
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
         }
 
         input[type="text"], input[type="number"], select {
@@ -112,13 +118,6 @@
             outline: none;
             border-color: var(--border-dark);
             background-color: var(--bg);
-        }
-
-        /* ─── MASQUER LA RECHERCHE SUR LE TÉLÉPHONE (PWA CONFIGURÉE) ─── */
-        @media (display-mode: standalone) {
-            #search-container {
-                display: none;
-            }
         }
 
         .form-group {
@@ -295,11 +294,6 @@
         </nav>
     </header>
 
-    <!-- Conteneur avec ID pour contrôle d'affichage -->
-    <div class="controls" id="search-container">
-        <input type="text" id="search-bar" placeholder="Rechercher une pièce..." oninput="render()">
-    </div>
-
     <div id="view-main" class="view active">
         <h2>Pièces Prioritaires</h2>
         <div id="main-stock-list" class="stock-grid"></div>
@@ -418,7 +412,6 @@
         }
 
         function render() {
-            const searchQuery = document.getElementById('search-bar').value.toLowerCase();
             const mainContainer = document.getElementById('main-stock-list');
             const allContainer = document.getElementById('all-stock-list');
 
@@ -426,8 +419,6 @@
             allContainer.innerHTML = '';
 
             inventory.forEach(item => {
-                if (searchQuery && !item.name.toLowerCase().includes(searchQuery)) return;
-
                 let itemHtml = '';
 
                 if (editingId === item.id) {
