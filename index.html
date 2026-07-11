@@ -9,8 +9,7 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- Utilisation directe de ton image webp pour l'icône iOS -->
-    <link rel="apple-touch-icon" href="logo-ne.webp">
+    <link class="apple-touch-icon" href="logo-ne.webp">
 
     <style>
         :root {
@@ -56,11 +55,7 @@
         #logo {
             width: 64px;
             height: 64px;
-            fill: none;
-            stroke: var(--text);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+            object-fit: cover;
         }
 
         h1 {
@@ -103,6 +98,40 @@
             display: block;
         }
 
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .categories-filter {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 4px 4px 12px 4px;
+            margin-bottom: 12px;
+            scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+        }
+
+        .categories-filter::-webkit-scrollbar {
+            display: none; /* Cache la scrollbar sur Chrome/Safari */
+        }
+
+        .btn-filter {
+            background-color: var(--gray-light);
+            border: 1px solid transparent;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+
+        .btn-filter.active {
+            background-color: var(--gray-dark);
+            color: var(--bg);
+        }
+
         input[type="text"], input[type="number"], select {
             width: 100%;
             background-color: var(--gray-light);
@@ -134,6 +163,7 @@
         .form-row {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         .form-row input, .form-row select {
@@ -223,12 +253,25 @@
             color: #666;
         }
 
+        .category-tag {
+            display: inline-block;
+            background-color: rgba(0,0,0,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
         .item-actions {
             display: flex;
             align-items: center;
             gap: 4px;
         }
 
+        /* Couleur quand le stock est PLEIN (Gris/Noir du logo, sobre) */
         .item-qty {
             font-size: 1.05rem;
             font-weight: 600;
@@ -236,6 +279,27 @@
             margin-right: 8px;
             min-width: 45px;
             text-align: right;
+            color: var(--text); /* Couleur par défaut (noir) quand le stock est plein */
+        }
+
+        /* ÉTAT 1 : Stock à la moitié ou moins (Alerte Orange) */
+        .stock-item.alert-orange {
+            background-color: #fff9f2; /* Fond orange très clair */
+            border-color: #F77F00;     /* Bordure orange sécurité */
+        }
+        .stock-item.alert-orange .item-qty {
+            color: #F77F00;
+            font-weight: 700;
+        }
+
+        /* ÉTAT 2 : Stock complètement vide (Alerte Rouge Extincteur) */
+        .stock-item.alert-red {
+            background-color: #fff5f5; /* Fond rouge très clair */
+            border-color: #E63946;     /* Bordure rouge extincteur */
+        }
+        .stock-item.alert-red .item-qty {
+            color: #E63946;
+            font-weight: 700;
         }
 
         .btn-qty, .btn-icon {
@@ -294,6 +358,21 @@
         </nav>
     </header>
 
+    <div class="controls">
+        <input type="text" id="search-bar" placeholder="Rechercher une pièce..." oninput="render()" style="margin-bottom: 10px;">
+        
+        <!-- Filtres par catégorie complets -->
+        <div class="categories-filter" id="categories-tabs">
+            <button class="btn-filter active" onclick="filterCategory('TOUT')">Tout</button>
+            <button class="btn-filter" onclick="filterCategory('SSI')">SSI</button>
+            <button class="btn-filter" onclick="filterCategory('EXTINCTEURS')">Extincteurs</button>
+            <button class="btn-filter" onclick="filterCategory('DESENFUMAGE')">Désenfumage</button>
+            <button class="btn-filter" onclick="filterCategory('OUTILLAGE')">Outillage</button>
+            <button class="btn-filter" onclick="filterCategory('EPI')">EPI</button>
+            <button class="btn-filter" onclick="filterCategory('AUTRE')">Autre</button>
+        </div>
+    </div>
+
     <div id="view-main" class="view active">
         <h2>Pièces Prioritaires</h2>
         <div id="main-stock-list" class="stock-grid"></div>
@@ -302,9 +381,19 @@
     <div id="view-all" class="view">
         <h2>Nouvelle Pièce</h2>
         <div class="form-group">
-            <input type="text" id="item-name" placeholder="Nom de la pièce (ex: Diffuseur Sonore)">
+            <input type="text" id="item-name" placeholder="Nom de la pièce (ex: Lunettes, Gants, Détecteur...)">
             <div class="form-row">
-                <input type="number" id="item-max" placeholder="Limite Max (ex: 2)" min="1">
+                <select id="item-category">
+                    <option value="SSI" selected>Catégorie : SSI</option>
+                    <option value="EXTINCTEURS">Catégorie : Extincteurs</option>
+                    <option value="DESENFUMAGE">Catégorie : Désenfumage</option>
+                    <option value="OUTILLAGE">Catégorie : Outillage</option>
+                    <option value="EPI">Catégorie : EPI</option>
+                    <option value="AUTRE">Catégorie : Autre</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <input type="number" id="item-max" placeholder="Limite Max (ex: 5)" min="1">
                 <label class="checkbox-label">
                     <input type="checkbox" id="item-is-main" checked> Mettre en Principal
                 </label>
@@ -319,6 +408,7 @@
     <script>
         let inventory = JSON.parse(localStorage.getItem('truck_inventory')) || [];
         let editingId = null;
+        let currentCategoryFilter = 'TOUT';
 
         function saveToStorage() {
             localStorage.setItem('truck_inventory', JSON.stringify(inventory));
@@ -339,26 +429,56 @@
             render();
         }
 
+        function filterCategory(category) {
+            currentCategoryFilter = category;
+            
+            // Mise à jour visuelle des boutons de filtres
+            const buttons = document.querySelectorAll('#categories-tabs .btn-filter');
+            buttons.forEach(btn => {
+                let targetText = category;
+                if (category === 'TOUT') targetText = 'TOUT';
+                if (category === 'DESENFUMAGE') targetText = 'DÉSENFUMAGE';
+
+                if (btn.textContent.toUpperCase() === targetText || (category === 'TOUT' && btn.textContent === 'Tout')) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            render();
+        }
+
         function addItem() {
             const nameInput = document.getElementById('item-name');
             const maxInput = document.getElementById('item-max');
             const isMainInput = document.getElementById('item-is-main');
+            const categoryInput = document.getElementById('item-category');
 
             const name = nameInput.value.trim();
             const max = parseInt(maxInput.value, 10);
+            const category = categoryInput.value;
 
             if (!name || isNaN(max) || max <= 0) {
                 alert("Veuillez entrer un nom et une limite maximum valide.");
                 return;
             }
 
-            const newItem = { id: Date.now(), name: name, current: 0, max: max, isMain: isMainInput.checked };
+            const newItem = { 
+                id: Date.now(), 
+                name: name, 
+                current: 0, 
+                max: max, 
+                isMain: isMainInput.checked,
+                category: category || 'AUTRE'
+            };
+            
             inventory.push(newItem);
             saveToStorage();
             render();
 
             nameInput.value = '';
             maxInput.value = '';
+            categoryInput.value = 'SSI';
         }
 
         function deleteItem(id) {
@@ -394,6 +514,7 @@
                 const editCurrent = parseInt(document.getElementById(`edit-current-${id}`).value, 10);
                 const editMax = parseInt(document.getElementById(`edit-max-${id}`).value, 10);
                 const editMain = document.getElementById(`edit-main-${id}`).value === 'true';
+                const editCategory = document.getElementById(`edit-category-${id}`).value;
 
                 if (!editName || isNaN(editMax) || editMax <= 0 || isNaN(editCurrent) || editCurrent < 0) {
                     alert("Champs invalides. Vérifiez le nom et les quantités.");
@@ -403,6 +524,7 @@
                 item.name = editName;
                 item.max = editMax;
                 item.isMain = editMain;
+                item.category = editCategory;
                 item.current = editCurrent > item.max ? item.max : editCurrent;
 
                 editingId = null;
@@ -412,6 +534,7 @@
         }
 
         function render() {
+            const searchQuery = document.getElementById('search-bar').value.toLowerCase();
             const mainContainer = document.getElementById('main-stock-list');
             const allContainer = document.getElementById('all-stock-list');
 
@@ -419,6 +542,15 @@
             allContainer.innerHTML = '';
 
             inventory.forEach(item => {
+                // Rétrocompatibilité au cas où
+                if (!item.category) item.category = 'AUTRE';
+
+                // 1. Filtrer selon la saisie de la recherche
+                if (searchQuery && !item.name.toLowerCase().includes(searchQuery)) return;
+
+                // 2. Filtrer selon la catégorie sélectionnée
+                if (currentCategoryFilter !== 'TOUT' && item.category !== currentCategoryFilter) return;
+
                 let itemHtml = '';
 
                 if (editingId === item.id) {
@@ -428,6 +560,16 @@
                             <div class="form-row">
                                 <input type="number" id="edit-current-${item.id}" value="${item.current}" placeholder="Qté Actuelle" min="0">
                                 <input type="number" id="edit-max-${item.id}" value="${item.max}" placeholder="Max" min="1">
+                            </div>
+                            <div class="form-row">
+                                <select id="edit-category-${item.id}">
+                                    <option value="SSI" ${item.category === 'SSI' ? 'selected' : ''}>SSI</option>
+                                    <option value="EXTINCTEURS" ${item.category === 'EXTINCTEURS' ? 'selected' : ''}>Extincteurs</option>
+                                    <option value="DESENFUMAGE" ${item.category === 'DESENFUMAGE' ? 'selected' : ''}>Désenfumage</option>
+                                    <option value="OUTILLAGE" ${item.category === 'OUTILLAGE' ? 'selected' : ''}>Outillage</option>
+                                    <option value="EPI" ${item.category === 'EPI' ? 'selected' : ''}>EPI</option>
+                                    <option value="AUTRE" ${item.category === 'AUTRE' ? 'selected' : ''}>Autre</option>
+                                </select>
                                 <select id="edit-main-${item.id}">
                                     <option value="true" ${item.isMain ? 'selected' : ''}>Principal</option>
                                     <option value="false" ${!item.isMain ? 'selected' : ''}>Réserve</option>
@@ -440,11 +582,24 @@
                         </div>
                     `;
                 } else {
-                    const isAlert = item.current < item.max;
+                    // Calcul dynamique de la classe d'alerte
+                    let alertClass = ''; // Par défaut : stock plein
+                    
+                    if (item.current === 0) {
+                        alertClass = 'alert-red'; // Complètement vide
+                    } else if (item.current <= (item.max / 2)) {
+                        alertClass = 'alert-orange'; // À la moitié ou moins
+                    }
+
+                    // Formatage propre des labels pour l'affichage des tags
+                    let displayCategory = item.category;
+                    if (item.category === 'DESENFUMAGE') displayCategory = 'Désenfumage';
+                    if (item.category === 'AUTRE') displayCategory = 'Autre';
+
                     itemHtml = `
-                        <div class="stock-item ${isAlert ? 'alert' : ''}">
+                        <div class="stock-item ${alertClass}">
                             <div class="item-info">
-                                <h3>${item.name}</h3>
+                                <h3>${item.name}<span class="category-tag">${displayCategory}</span></h3>
                                 <p>${item.isMain ? 'Stock Principal' : 'Réserve'}</p>
                             </div>
                             <div class="item-actions">
@@ -462,10 +617,11 @@
                 allContainer.insertAdjacentHTML('beforeend', itemHtml);
             });
 
-            if (mainContainer.innerHTML === '') mainContainer.innerHTML = '<div class="empty-message">Aucune pièce prioritaire.</div>';
-            if (allContainer.innerHTML === '') allContainer.innerHTML = '<div class="empty-message">Le stock est vide.</div>';
+            if (mainContainer.innerHTML === '') mainContainer.innerHTML = '<div class="empty-message">Aucune pièce prioritaire dans cette catégorie ou recherche.</div>';
+            if (allContainer.innerHTML === '') allContainer.innerHTML = '<div class="empty-message">Aucune pièce trouvée.</div>';
         }
 
+        // Rendu initial
         render();
 
         if ('serviceWorker' in navigator) {
