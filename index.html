@@ -22,6 +22,8 @@
             --radius-sm: 8px;
             --radius-md: 16px;
             --radius-lg: 24px;
+            --orange: #F77F00;
+            --red: #E63946;
         }
 
         * {
@@ -108,11 +110,11 @@
             overflow-x: auto;
             padding: 4px 4px 12px 4px;
             margin-bottom: 12px;
-            scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+            scrollbar-width: none;
         }
 
         .categories-filter::-webkit-scrollbar {
-            display: none; /* Cache la scrollbar sur Chrome/Safari */
+            display: none;
         }
 
         .btn-filter {
@@ -225,12 +227,38 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--bg);
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
         }
 
-        .stock-item.alert {
-            background-color: var(--gray-light);
-            border-color: transparent;
+        /* --- COULEURS ET ALERTES DE STOCK --- */
+        .item-qty {
+            font-size: 1.05rem;
+            font-weight: 600;
+            font-family: monospace;
+            margin-right: 8px;
+            min-width: 45px;
+            text-align: right;
+            color: var(--text);
+        }
+
+        /* Moitié du stock ou moins -> Orange */
+        .stock-item.alert-orange {
+            background-color: #fff9f2;
+            border-color: var(--orange);
+        }
+        .stock-item.alert-orange .item-qty {
+            color: var(--orange);
+            font-weight: 700;
+        }
+
+        /* Stock vide -> Rouge Extincteur */
+        .stock-item.alert-red {
+            background-color: #fff5f5;
+            border-color: var(--red);
+        }
+        .stock-item.alert-red .item-qty {
+            color: var(--red);
+            font-weight: 700;
         }
 
         .stock-item.edit-mode-item {
@@ -271,37 +299,6 @@
             gap: 4px;
         }
 
-        /* Couleur quand le stock est PLEIN (Gris/Noir du logo, sobre) */
-        .item-qty {
-            font-size: 1.05rem;
-            font-weight: 600;
-            font-family: monospace;
-            margin-right: 8px;
-            min-width: 45px;
-            text-align: right;
-            color: var(--text); /* Couleur par défaut (noir) quand le stock est plein */
-        }
-
-        /* ÉTAT 1 : Stock à la moitié ou moins (Alerte Orange) */
-        .stock-item.alert-orange {
-            background-color: #fff9f2; /* Fond orange très clair */
-            border-color: #F77F00;     /* Bordure orange sécurité */
-        }
-        .stock-item.alert-orange .item-qty {
-            color: #F77F00;
-            font-weight: 700;
-        }
-
-        /* ÉTAT 2 : Stock complètement vide (Alerte Rouge Extincteur) */
-        .stock-item.alert-red {
-            background-color: #fff5f5; /* Fond rouge très clair */
-            border-color: #E63946;     /* Bordure rouge extincteur */
-        }
-        .stock-item.alert-red .item-qty {
-            color: #E63946;
-            font-weight: 700;
-        }
-
         .btn-qty, .btn-icon {
             background-color: var(--bg);
             border: 1px solid var(--border);
@@ -329,7 +326,7 @@
         }
 
         .btn-icon.btn-delete-item:hover {
-            color: #cc0000;
+            color: var(--red);
             background-color: #ffeeee;
         }
 
@@ -342,9 +339,108 @@
             background-color: var(--gray-light);
             border-radius: var(--radius-md);
         }
+
+        /* --- NOTIFICATIONS POP-UP EN HAUT (TOAST) --- */
+        #custom-toast {
+            position: fixed;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--gray-dark);
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        #custom-toast.show {
+            top: 20px;
+        }
+
+        /* --- MODAL CONFIRMATION PERSONNALISÉ EN HAUT --- */
+        #custom-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #custom-confirm-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #custom-confirm-box {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 400px;
+            background-color: var(--bg);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: top 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+            text-align: center;
+        }
+        #custom-confirm-overlay.show #custom-confirm-box {
+            top: 20px;
+        }
+        #custom-confirm-box p {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 18px;
+        }
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-confirm-yes {
+            flex: 1;
+            background-color: var(--red);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+        .btn-confirm-no {
+            flex: 1;
+            background-color: var(--gray-light);
+            color: var(--text);
+            border: none;
+            padding: 12px;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Structure pour Toast & Modal en haut de l'écran -->
+    <div id="custom-toast">Message de notification</div>
+    
+    <div id="custom-confirm-overlay">
+        <div id="custom-confirm-box">
+            <p id="confirm-message">Voulez-vous vraiment effectuer cette action ?</p>
+            <div class="confirm-actions">
+                <button class="btn-confirm-no" onclick="closeConfirm(false)">Annuler</button>
+                <button class="btn-confirm-yes" onclick="closeConfirm(true)">Supprimer</button>
+            </div>
+        </div>
+    </div>
 
     <header>
        <div class="brand-container">
@@ -361,7 +457,6 @@
     <div class="controls">
         <input type="text" id="search-bar" placeholder="Rechercher une pièce..." oninput="render()" style="margin-bottom: 10px;">
         
-        <!-- Filtres par catégorie complets -->
         <div class="categories-filter" id="categories-tabs">
             <button class="btn-filter active" onclick="filterCategory('TOUT')">Tout</button>
             <button class="btn-filter" onclick="filterCategory('SSI')">SSI</button>
@@ -409,9 +504,39 @@
         let inventory = JSON.parse(localStorage.getItem('truck_inventory')) || [];
         let editingId = null;
         let currentCategoryFilter = 'TOUT';
+        let deleteTargetId = null;
 
         function saveToStorage() {
             localStorage.setItem('truck_inventory', JSON.stringify(inventory));
+        }
+
+        // Système de Toast personnalisé (Haut de l'écran)
+        function showToast(message) {
+            const toast = document.getElementById('custom-toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Appels pour le modal de confirmation personnalisé
+        function askConfirmation(id, message) {
+            deleteTargetId = id;
+            document.getElementById('confirm-message').textContent = message;
+            document.getElementById('custom-confirm-overlay').classList.add('show');
+        }
+
+        function closeConfirm(isConfirmed) {
+            document.getElementById('custom-confirm-overlay').classList.remove('show');
+            if (isConfirmed && deleteTargetId) {
+                inventory = inventory.filter(item => item.id !== deleteTargetId);
+                if (editingId === deleteTargetId) editingId = null;
+                saveToStorage();
+                render();
+                showToast("Pièce supprimée définitivement.");
+            }
+            deleteTargetId = null;
         }
 
         function switchView(viewName) {
@@ -431,8 +556,6 @@
 
         function filterCategory(category) {
             currentCategoryFilter = category;
-            
-            // Mise à jour visuelle des boutons de filtres
             const buttons = document.querySelectorAll('#categories-tabs .btn-filter');
             buttons.forEach(btn => {
                 let targetText = category;
@@ -459,7 +582,7 @@
             const category = categoryInput.value;
 
             if (!name || isNaN(max) || max <= 0) {
-                alert("Veuillez entrer un nom et une limite maximum valide.");
+                showToast("⚠️ Saisie incomplète ou invalide.");
                 return;
             }
 
@@ -479,15 +602,11 @@
             nameInput.value = '';
             maxInput.value = '';
             categoryInput.value = 'SSI';
+            showToast("✔️ Pièce ajoutée au catalogue !");
         }
 
         function deleteItem(id) {
-            if(confirm("Supprimer définitivement cette pièce du stock ?")) {
-                inventory = inventory.filter(item => item.id !== id);
-                if (editingId === id) editingId = null;
-                saveToStorage();
-                render();
-            }
+            askConfirmation(id, "Supprimer définitivement cette pièce du stock ?");
         }
 
         function adjustQty(id, amount) {
@@ -517,7 +636,7 @@
                 const editCategory = document.getElementById(`edit-category-${id}`).value;
 
                 if (!editName || isNaN(editMax) || editMax <= 0 || isNaN(editCurrent) || editCurrent < 0) {
-                    alert("Champs invalides. Vérifiez le nom et les quantités.");
+                    showToast("⚠️ Erreur dans les champs de modification.");
                     return;
                 }
 
@@ -530,6 +649,7 @@
                 editingId = null;
                 saveToStorage();
                 render();
+                showToast("✏️ Modifications enregistrées.");
             }
         }
 
@@ -542,13 +662,9 @@
             allContainer.innerHTML = '';
 
             inventory.forEach(item => {
-                // Rétrocompatibilité au cas où
                 if (!item.category) item.category = 'AUTRE';
 
-                // 1. Filtrer selon la saisie de la recherche
                 if (searchQuery && !item.name.toLowerCase().includes(searchQuery)) return;
-
-                // 2. Filtrer selon la catégorie sélectionnée
                 if (currentCategoryFilter !== 'TOUT' && item.category !== currentCategoryFilter) return;
 
                 let itemHtml = '';
@@ -556,10 +672,10 @@
                 if (editingId === item.id) {
                     itemHtml = `
                         <div class="stock-item edit-mode-item">
-                            <input type="text" id="edit-name-${item.id}" value="${item.name}" placeholder="Nom de la pièce">
+                            <input type="text" id="edit-name-${item.id}" value="${item.name}">
                             <div class="form-row">
-                                <input type="number" id="edit-current-${item.id}" value="${item.current}" placeholder="Qté Actuelle" min="0">
-                                <input type="number" id="edit-max-${item.id}" value="${item.max}" placeholder="Max" min="1">
+                                <input type="number" id="edit-current-${item.id}" value="${item.current}" min="0">
+                                <input type="number" id="edit-max-${item.id}" value="${item.max}" min="1">
                             </div>
                             <div class="form-row">
                                 <select id="edit-category-${item.id}">
@@ -582,16 +698,14 @@
                         </div>
                     `;
                 } else {
-                    // Calcul dynamique de la classe d'alerte
-                    let alertClass = ''; // Par défaut : stock plein
-                    
+                    // Logique dynamique de la classe d'alerte (Orange / Rouge / Neutre)
+                    let alertClass = '';
                     if (item.current === 0) {
-                        alertClass = 'alert-red'; // Complètement vide
+                        alertClass = 'alert-red'; 
                     } else if (item.current <= (item.max / 2)) {
-                        alertClass = 'alert-orange'; // À la moitié ou moins
+                        alertClass = 'alert-orange'; 
                     }
-
-                    // Formatage propre des labels pour l'affichage des tags
+                    
                     let displayCategory = item.category;
                     if (item.category === 'DESENFUMAGE') displayCategory = 'Désenfumage';
                     if (item.category === 'AUTRE') displayCategory = 'Autre';
@@ -621,7 +735,6 @@
             if (allContainer.innerHTML === '') allContainer.innerHTML = '<div class="empty-message">Aucune pièce trouvée.</div>';
         }
 
-        // Rendu initial
         render();
 
         if ('serviceWorker' in navigator) {
