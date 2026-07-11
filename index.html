@@ -93,14 +93,6 @@
             color: var(--bg);
         }
 
-        .view {
-            display: none;
-        }
-
-        .view.active {
-            display: block;
-        }
-
         .controls {
             margin-bottom: 20px;
         }
@@ -120,6 +112,13 @@
             outline: none;
             border-color: var(--border-dark);
             background-color: var(--bg);
+        }
+
+        /* ─── MASQUER LA RECHERCHE SUR LE TÉLÉPHONE (PWA CONFIGURÉE) ─── */
+        @media (display-mode: standalone) {
+            #search-container {
+                display: none;
+            }
         }
 
         .form-group {
@@ -296,7 +295,8 @@
         </nav>
     </header>
 
-    <div class="controls">
+    <!-- Conteneur avec ID pour contrôle d'affichage -->
+    <div class="controls" id="search-container">
         <input type="text" id="search-bar" placeholder="Rechercher une pièce..." oninput="render()">
     </div>
 
@@ -323,9 +323,7 @@
     </div>
 
     <script>
-        // Utilisation du localStorage
         let inventory = JSON.parse(localStorage.getItem('truck_inventory')) || [];
-        // Stocke l'ID de l'élément en cours d'édition (null si aucun)
         let editingId = null;
 
         function saveToStorage() {
@@ -333,7 +331,7 @@
         }
 
         function switchView(viewName) {
-            editingId = null; // Annuler l'édition en cours si on change de page
+            editingId = null; 
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
@@ -390,13 +388,11 @@
             }
         }
 
-        // Active le mode édition pour une pièce
         function startEdit(id) {
             editingId = id;
             render();
         }
 
-        // Enregistre les modifications apportées à la pièce
         function saveEdit(id) {
             const item = inventory.find(i => i.id === id);
             if (item) {
@@ -413,8 +409,6 @@
                 item.name = editName;
                 item.max = editMax;
                 item.isMain = editMain;
-                
-                // On applique la quantité saisie en veillant à ce qu'elle ne dépasse pas le nouveau max
                 item.current = editCurrent > item.max ? item.max : editCurrent;
 
                 editingId = null;
@@ -437,7 +431,6 @@
                 let itemHtml = '';
 
                 if (editingId === item.id) {
-                    // CODE HTML SI L'ÉLÉMENT EST EN MODE ÉDITION (Ajout du champ Quantité Actuelle)
                     itemHtml = `
                         <div class="stock-item edit-mode-item">
                             <input type="text" id="edit-name-${item.id}" value="${item.name}" placeholder="Nom de la pièce">
@@ -456,7 +449,6 @@
                         </div>
                     `;
                 } else {
-                    // CODE HTML EN MODE NORMAL AVEC LE BOUTON CRAYON (ÉDITER)
                     const isAlert = item.current < item.max;
                     itemHtml = `
                         <div class="stock-item ${isAlert ? 'alert' : ''}">
@@ -468,7 +460,6 @@
                                 <span class="item-qty">${item.current}/${item.max}</span>
                                 <button class="btn-qty" onclick="adjustQty(${item.id}, -1)">−</button>
                                 <button class="btn-qty" onclick="adjustQty(${item.id}, 1)">+</button>
-                                <!-- Bouton Modifier (Crayon) -->
                                 <button class="btn-icon" title="Modifier" onclick="startEdit(${item.id})">✏️</button>
                                 <button class="btn-icon btn-delete-item" title="Supprimer" onclick="deleteItem(${item.id})">✕</button>
                             </div>
