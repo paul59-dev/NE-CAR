@@ -46,6 +46,19 @@
             margin-bottom: 24px;
         }
 
+        button, select, input {
+            /* Supprime le contour bleu de sélection/focus */
+            outline: none !important;
+            
+            /* Supprime la surbrillance bleue par défaut au clic sur mobile (Chrome/Safari) */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Optionnel : Si tu veux quand même un retour visuel discret lors de la navigation au clavier */
+        button:focus-visible, select:focus-visible, input:focus-visible {
+            outline: 1px solid var(--border-dark) !important;
+        }
+
         .brand-container {
             display: flex;
             align-items: center;
