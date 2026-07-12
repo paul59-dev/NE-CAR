@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Camion</title>
     <!-- Balises obligatoires pour la PWA -->
-    <link rel="manifest" href="manifest.json">
+    <link class="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,6 +24,8 @@
             --radius-lg: 24px;
             --orange: #F77F00;
             --red: #E63946;
+            --blue: #007AFF;
+            --purple: #8E44AD;
         }
 
         /* --- BLINDAGE ANTI-CONTOUR BLEU MOBILE --- */
@@ -81,7 +83,7 @@
 
         nav {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             background-color: var(--gray-light);
             padding: 6px;
             border-radius: var(--radius-lg);
@@ -92,19 +94,33 @@
             flex: 1;
             border: none;
             background: none;
-            padding: 12px 16px;
-            font-size: 0.9rem;
+            padding: 12px 10px;
+            font-size: 0.85rem;
             font-weight: 500;
             border-radius: var(--radius-lg);
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            -webkit-user-select: none;
+            position: relative;
             user-select: none;
         }
 
         nav button.active {
             background-color: var(--text);
             color: var(--bg);
+        }
+
+        .nav-badge {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            background-color: var(--red);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
         }
 
         .view {
@@ -166,7 +182,6 @@
             background-color: var(--bg);
         }
 
-        /* --- SÉLECTEUR DE CATÉGORIES PERSONNALISÉ (STYLE BADGES) --- */
         .custom-select-label {
             font-size: 0.85rem;
             font-weight: 600;
@@ -224,7 +239,7 @@
             flex: 1;
         }
 
-        .btn-add, .btn-save {
+        .btn-add, .btn-save, .btn-action-large {
             background-color: var(--gray-dark);
             color: var(--bg);
             border: none;
@@ -234,10 +249,13 @@
             border-radius: var(--radius-md);
             cursor: pointer;
             transition: background-color 0.2s ease;
+            width: 100%;
+            text-align: center;
         }
 
-        .btn-add:hover, .btn-save:hover {
-            background-color: var(--text);
+        .btn-action-large.share {
+            background-color: var(--blue);
+            margin-top: 14px;
         }
 
         .checkbox-label {
@@ -282,12 +300,11 @@
             transition: all 0.2s ease;
         }
 
-        /* --- COULEURS ET ALERTES DE STOCK --- */
         .item-qty {
             font-size: 1.05rem;
             font-weight: 600;
             font-family: monospace;
-            margin-right: 8px;
+            margin-right: 4px;
             min-width: 45px;
             text-align: right;
             color: var(--text);
@@ -309,6 +326,11 @@
         .stock-item.alert-red .item-qty {
             color: var(--red);
             font-weight: 700;
+        }
+
+        .stock-item.custom-order-item {
+            background-color: #fbf6ff;
+            border-color: var(--purple);
         }
 
         .stock-item.edit-mode-item {
@@ -341,6 +363,11 @@
             margin-left: 6px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+        }
+
+        .category-tag.tag-temp {
+            background-color: var(--purple);
+            color: white;
         }
 
         .item-actions {
@@ -380,6 +407,15 @@
             background-color: #ffeeee;
         }
 
+        .btn-icon.btn-cart {
+            font-size: 1.05rem;
+        }
+        .btn-icon.btn-cart.active-cart {
+            background-color: #e6f4ea;
+            color: #137333;
+            border: 1px solid #137333;
+        }
+
         .empty-message {
             font-style: italic;
             color: #777;
@@ -411,8 +447,8 @@
             top: 20px;
         }
 
-        /* --- MODAL CONFIRMATION --- */
-        #custom-confirm-overlay {
+        /* --- OVERLAY GLOBAL POUR TOUTES LES MODALES --- */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -424,13 +460,14 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
         }
-        #custom-confirm-overlay.show {
+        .modal-overlay.show {
             opacity: 1;
             pointer-events: auto;
         }
-        #custom-confirm-box {
+
+        .modal-box {
             position: fixed;
-            top: -200px;
+            top: -300px;
             left: 50%;
             transform: translateX(-50%);
             width: calc(100% - 32px);
@@ -443,21 +480,25 @@
             transition: top 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.15);
             text-align: center;
         }
-        #custom-confirm-overlay.show #custom-confirm-box {
+        .modal-overlay.show .modal-box {
             top: 20px;
         }
-        #custom-confirm-box p {
+
+        .modal-box p {
             font-size: 1rem;
             font-weight: 500;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
         }
-        .confirm-actions {
+
+        .modal-actions {
             display: flex;
             gap: 10px;
+            margin-top: 14px;
         }
-        .btn-confirm-yes {
+
+        .btn-modal-yes {
             flex: 1;
-            background-color: var(--red);
+            background-color: var(--gray-dark);
             color: white;
             border: none;
             padding: 12px;
@@ -465,7 +506,10 @@
             border-radius: var(--radius-md);
             cursor: pointer;
         }
-        .btn-confirm-no {
+        .btn-modal-yes.danger {
+            background-color: var(--red);
+        }
+        .btn-modal-no {
             flex: 1;
             background-color: var(--gray-light);
             color: var(--text);
@@ -481,12 +525,25 @@
 
     <div id="custom-toast">Notification</div>
     
-    <div id="custom-confirm-overlay">
-        <div id="custom-confirm-box">
+    <!-- Modale de Confirmation (Suppression) -->
+    <div id="custom-confirm-overlay" class="modal-overlay">
+        <div id="custom-confirm-box" class="modal-box">
             <p id="confirm-message">Supprimer définitivement cette pièce ?</p>
-            <div class="confirm-actions">
-                <button class="btn-confirm-no" onclick="closeConfirm(false)">Annuler</button>
-                <button class="btn-confirm-yes" onclick="closeConfirm(true)">Supprimer</button>
+            <div class="modal-actions">
+                <button class="btn-modal-no" onclick="closeConfirm(false)">Annuler</button>
+                <button class="btn-modal-yes danger" onclick="closeConfirm(true)">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Personnalisée pour le Titre du Chantier -->
+    <div id="custom-prompt-overlay" class="modal-overlay">
+        <div id="custom-prompt-box" class="modal-box">
+            <p>Titre ou Nom du chantier ?</p>
+            <input type="text" id="prompt-input-title" placeholder="Ex: OLEUM, Semaine 28, Nord...">
+            <div class="modal-actions">
+                <button class="btn-modal-no" onclick="closeTitleModal(false)">Annuler</button>
+                <button class="btn-modal-yes" onclick="closeTitleModal(true)">Valider et Envoyer</button>
             </div>
         </div>
     </div>
@@ -500,10 +557,13 @@
         <nav>
             <button id="btn-main" class="active" onclick="switchView('main')">Principal</button>
             <button id="btn-all" onclick="switchView('all')">Tout le Stock</button>
+            <button id="btn-order" onclick="switchView('order')">
+                Commande <span class="nav-badge" id="order-badge" style="display:none;">0</span>
+            </button>
         </nav>
     </header>
 
-    <div class="controls">
+    <div class="controls" id="global-controls">
         <input type="text" id="search-bar" placeholder="Rechercher une pièce..." oninput="render()" style="margin-bottom: 10px;">
         
         <div class="categories-filter" id="categories-tabs">
@@ -517,17 +577,18 @@
         </div>
     </div>
 
+    <!-- VUE 1 : PRINCIPAL -->
     <div id="view-main" class="view active">
         <h2>Pièces Prioritaires</h2>
         <div id="main-stock-list" class="stock-grid"></div>
     </div>
 
+    <!-- VUE 2 : CATALOGUE COMPLET & AJOUT -->
     <div id="view-all" class="view">
-        <h2>Nouvelle Pièce</h2>
+        <h2>Nouvelle Pièce Catalogue</h2>
         <div class="form-group">
             <input type="text" id="item-name" placeholder="Nom de la pièce (ex: Lunettes, Gants, Détecteur...)">
             
-            <!-- Sélecteur personnalisé sous forme de Badges Tactiles -->
             <div class="custom-select-label">Catégorie :</div>
             <div class="custom-select-grid" id="add-category-grid">
                 <div class="select-badge selected" onclick="selectFormCategory(this, 'SSI')">SSI</div>
@@ -551,17 +612,33 @@
         <div id="all-stock-list" class="stock-grid"></div>
     </div>
 
+    <!-- VUE 3 : BESOIN DE COMMANDE -->
+    <div id="view-order" class="view">
+        <h2>Ajout exceptionnel / Client / Hors Stock</h2>
+        <div class="form-group" style="margin-bottom: 20px; border-color: var(--purple);">
+            <input type="text" id="temp-item-name" placeholder="Marchandise spécifique (ex: Extincteur CO2 Client X)">
+            <div class="form-row">
+                <input type="number" id="temp-item-qty" placeholder="Quantité nécessaire" min="1">
+                <button class="btn-add" onclick="addTemporaryOrderItem()" style="background-color: var(--purple); max-width: 140px;">+ Ajouter</button>
+            </div>
+        </div>
+
+        <h2>Pièces à commander</h2>
+        <div id="order-stock-list" class="stock-grid"></div>
+        <button id="btn-share-order" class="btn-action-large share" onclick="openTitleModal()">Partager la commande</button>
+    </div>
+
     <script>
         let inventory = JSON.parse(localStorage.getItem('truck_inventory')) || [];
         let editingId = null;
         let currentCategoryFilter = 'TOUT';
         let deleteTargetId = null;
-        
-        // Variable pour stocker la catégorie choisie dans le formulaire d'ajout (Piste par défaut : SSI)
         let selectedAddCategory = 'SSI';
+        let currentView = 'main';
 
         function saveToStorage() {
             localStorage.setItem('truck_inventory', JSON.stringify(inventory));
+            updateOrderBadge();
         }
 
         function showToast(message) {
@@ -591,7 +668,25 @@
             deleteTargetId = null;
         }
 
-        // Gérer le changement graphique de catégorie dans le formulaire de création
+        function openTitleModal() {
+            const itemsToOrder = inventory.filter(item => item.toOrder);
+            if (itemsToOrder.length === 0) {
+                showToast("Votre liste de commande est vide.");
+                return;
+            }
+            document.getElementById('prompt-input-title').value = '';
+            document.getElementById('custom-prompt-overlay').classList.add('show');
+            setTimeout(() => document.getElementById('prompt-input-title').focus(), 150);
+        }
+
+        function closeTitleModal(isConfirmed) {
+            document.getElementById('custom-prompt-overlay').classList.remove('show');
+            if (isConfirmed) {
+                const titleValue = document.getElementById('prompt-input-title').value.trim();
+                executeShare(titleValue);
+            }
+        }
+
         function selectFormCategory(element, categoryValue) {
             const siblings = element.parentNode.querySelectorAll('.select-badge');
             siblings.forEach(el => el.classList.remove('selected'));
@@ -599,7 +694,6 @@
             selectedAddCategory = categoryValue;
         }
 
-        // Gérer le changement dynamique dans le mode MODIFICATION (Inline)
         function selectEditCategory(id, element, categoryValue) {
             const container = document.getElementById(`edit-category-grid-${id}`);
             const badges = container.querySelectorAll('.select-badge');
@@ -608,17 +702,84 @@
             element.setAttribute('data-chosen-category', categoryValue);
         }
 
+        function updateOrderBadge() {
+            const orderCount = inventory.filter(item => item.toOrder).length;
+            const badge = document.getElementById('order-badge');
+            if (orderCount > 0) {
+                badge.textContent = orderCount;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function toggleOrder(id) {
+            const item = inventory.find(i => i.id === id);
+            if (item) {
+                // Si c'est un élément temporaire, on le supprime directement au lieu de le décocher
+                if (item.isTemp) {
+                    inventory = inventory.filter(i => i.id !== id);
+                } else {
+                    item.toOrder = !item.toOrder;
+                }
+                saveToStorage();
+                render();
+                showToast("Liste mise à jour.");
+            }
+        }
+
+        function addTemporaryOrderItem() {
+            const nameInput = document.getElementById('temp-item-name');
+            const qtyInput = document.getElementById('temp-item-qty');
+
+            const name = nameInput.value.trim();
+            const qty = parseInt(qtyInput.value, 10);
+
+            if (!name || isNaN(qty) || qty <= 0) {
+                showToast("⚠️ Saisie invalide pour l'ajout.");
+                return;
+            }
+
+            const newTempItem = {
+                id: Date.now(),
+                name: name,
+                current: 0,
+                max: qty, // Utilisé pour stocker la quantité demandée
+                isMain: false,
+                category: 'HORS STOCK',
+                toOrder: true,
+                isTemp: true // Flag pour le reconnaître
+            };
+
+            inventory.push(newTempItem);
+            saveToStorage();
+            render();
+
+            nameInput.value = '';
+            qtyInput.value = '';
+            showToast("📦 Ajouté directement à la commande !");
+        }
+
         function switchView(viewName) {
             editingId = null; 
+            currentView = viewName;
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            
+            const controls = document.getElementById('global-controls');
 
             if (viewName === 'main') {
                 document.getElementById('view-main').classList.add('active');
                 document.getElementById('btn-main').classList.add('active');
-            } else {
+                controls.style.display = 'block';
+            } else if (viewName === 'all') {
                 document.getElementById('view-all').classList.add('active');
                 document.getElementById('btn-all').classList.add('active');
+                controls.style.display = 'block';
+            } else if (viewName === 'order') {
+                document.getElementById('view-order').classList.add('active');
+                document.getElementById('btn-order').classList.add('active');
+                controls.style.display = 'none';
             }
             render();
         }
@@ -659,7 +820,9 @@
                 current: 0, 
                 max: max, 
                 isMain: isMainInput.checked,
-                category: selectedAddCategory || 'AUTRE'
+                category: selectedAddCategory || 'AUTRE',
+                toOrder: false,
+                isTemp: false
             };
             
             inventory.push(newItem);
@@ -669,7 +832,6 @@
             nameInput.value = '';
             maxInput.value = '';
             
-            // Remise à zéro graphique du sélecteur
             const firstBadge = document.getElementById('add-category-grid').querySelector('.select-badge');
             selectFormCategory(firstBadge, 'SSI');
             
@@ -682,7 +844,7 @@
 
         function adjustQty(id, amount) {
             const item = inventory.find(i => i.id === id);
-            if (item) {
+            if (item && !item.isTemp) {
                 const newQty = item.current + amount;
                 if (newQty >= 0 && newQty <= item.max) {
                     item.current = newQty;
@@ -693,6 +855,11 @@
         }
 
         function startEdit(id) {
+            const item = inventory.find(i => i.id === id);
+            if (item && item.isTemp) {
+                showToast("Les commandes exceptionnelles ne se modifient pas, supprimez et recréez.");
+                return;
+            }
             editingId = id;
             render();
         }
@@ -705,7 +872,6 @@
                 const editMax = parseInt(document.getElementById(`edit-max-${id}`).value, 10);
                 const editMain = document.getElementById(`edit-main-${id}`).value === 'true';
                 
-                // Récupération de la catégorie via le badge actif
                 const activeBadge = document.querySelector(`#edit-category-grid-${id} .select-badge.selected`);
                 const editCategory = activeBadge ? activeBadge.getAttribute('data-value') : item.category;
 
@@ -727,16 +893,94 @@
             }
         }
 
+        function executeShare(customTitle) {
+            const itemsToOrder = inventory.filter(item => item.toOrder);
+            if (itemsToOrder.length === 0) return;
+
+            let emailSubject = "Commande Stock Camion";
+            if (customTitle && customTitle.trim() !== "") {
+                emailSubject += " - " + customTitle;
+            }
+
+            let textMessage = "";
+            if (customTitle && customTitle.trim() !== "") {
+                textMessage += `📌 CHANTIER / SUJET : ${customTitle.toUpperCase()}\n`;
+            }
+            textMessage += `Bonjour, voici les pièces à commander :\n\n`;
+            
+            itemsToOrder.forEach(item => {
+                const qtyNeeded = item.isTemp ? item.max : (item.max - item.current);
+                const detailStock = item.isTemp ? `Hors catalogue` : `Stock actuel: ${item.current}/${item.max}`;
+                textMessage += `- ${item.name} (${item.category}) : Qte = ${qtyNeeded} (${detailStock})\n`;
+            });
+
+            const clearOrderList = () => {
+                // Supprime définitivement les temporaires, et réinitialise les fixes
+                inventory = inventory.filter(item => !item.isTemp);
+                inventory.forEach(item => {
+                    if (item.toOrder) item.toOrder = false;
+                });
+                saveToStorage();
+                switchView('main');
+                showToast("🛒 Commande envoyée, liste nettoyée !");
+            };
+
+            if (navigator.share) {
+                navigator.share({
+                    title: emailSubject,
+                    text: textMessage
+                })
+                .then(() => clearOrderList())
+                .catch(err => console.log("Partage annulé ou erreur :", err));
+            } else {
+                navigator.clipboard.writeText(emailSubject + "\n\n" + textMessage);
+                clearOrderList();
+                showToast("📋 Texte copié ! Liste nettoyée.");
+            }
+        }
+
         function render() {
             const searchQuery = document.getElementById('search-bar').value.toLowerCase();
             const mainContainer = document.getElementById('main-stock-list');
             const allContainer = document.getElementById('all-stock-list');
+            const orderContainer = document.getElementById('order-stock-list');
 
             mainContainer.innerHTML = '';
             allContainer.innerHTML = '';
+            orderContainer.innerHTML = '';
+
+            let hasOrderItems = false;
 
             inventory.forEach(item => {
                 if (!item.category) item.category = 'AUTRE';
+
+                if (currentView === 'order') {
+                    if (item.toOrder) {
+                        hasOrderItems = true;
+                        const qtyNeeded = item.isTemp ? item.max : (item.max - item.current);
+                        const displayClass = item.isTemp ? 'custom-order-item' : 'alert-orange';
+                        const badgeStyle = item.isTemp ? 'tag-temp' : '';
+                        const labelStock = item.isTemp ? 'Commande ponctuelle' : `Stock actuel: ${item.current}/${item.max}`;
+
+                        let orderHtml = `
+                            <div class="stock-item ${displayClass}">
+                                <div class="item-info">
+                                    <h3>${item.name} <span class="category-tag ${badgeStyle}">${item.category}</span></h3>
+                                    <p style="color: var(--red); font-weight: 500;">Quantité requise : ${qtyNeeded}</p>
+                                </div>
+                                <div class="item-actions">
+                                    <span class="item-qty">${item.isTemp ? qtyNeeded : item.current+'/'+item.max}</span>
+                                    <button class="btn-icon btn-cart active-cart" title="Retirer" onclick="toggleOrder(${item.id})">🛒</button>
+                                </div>
+                            </div>
+                        `;
+                        orderContainer.insertAdjacentHTML('beforeend', orderHtml);
+                    }
+                    return;
+                }
+
+                // Ne pas afficher les éléments purement temporaires dans le catalogue général
+                if (item.isTemp) return;
 
                 if (searchQuery && !item.name.toLowerCase().includes(searchQuery)) return;
                 if (currentCategoryFilter !== 'TOUT' && item.category !== currentCategoryFilter) return;
@@ -752,7 +996,6 @@
                                 <input type="number" id="edit-max-${item.id}" value="${item.max}" min="1" placeholder="Max">
                             </div>
                             
-                            <!-- Sélecteur personnalisé en mode édition -->
                             <div class="custom-select-label">Catégorie :</div>
                             <div class="custom-select-grid" id="edit-category-grid-${item.id}">
                                 <div class="select-badge ${item.category === 'SSI' ? 'selected' : ''}" data-value="SSI" onclick="selectEditCategory(${item.id}, this, 'SSI')">SSI</div>
@@ -787,6 +1030,8 @@
                     if (item.category === 'DESENFUMAGE') displayCategory = 'Désenfumage';
                     if (item.category === 'AUTRE') displayCategory = 'Autre';
 
+                    const cartActiveClass = item.toOrder ? 'active-cart' : '';
+
                     itemHtml = `
                         <div class="stock-item ${alertClass}">
                             <div class="item-info">
@@ -797,6 +1042,7 @@
                                 <span class="item-qty">${item.current}/${item.max}</span>
                                 <button class="btn-qty" onclick="adjustQty(${item.id}, -1)">−</button>
                                 <button class="btn-qty" onclick="adjustQty(${item.id}, 1)">+</button>
+                                <button class="btn-icon btn-cart ${cartActiveClass}" title="Signaler besoin commande" onclick="toggleOrder(${item.id})">🛒</button>
                                 <button class="btn-icon" title="Modifier" onclick="startEdit(${item.id})">✏️</button>
                                 <button class="btn-icon btn-delete-item" title="Supprimer" onclick="deleteItem(${item.id})">✕</button>
                             </div>
@@ -810,8 +1056,16 @@
 
             if (mainContainer.innerHTML === '') mainContainer.innerHTML = '<div class="empty-message">Aucune pièce prioritaire dans cette catégorie ou recherche.</div>';
             if (allContainer.innerHTML === '') allContainer.innerHTML = '<div class="empty-message">Aucune pièce trouvée.</div>';
+            
+            if (currentView === 'order' && !hasOrderItems) {
+                orderContainer.innerHTML = '<div class="empty-message">Aucun besoin de commande signalé pour le moment.</div>';
+                document.getElementById('btn-share-order').style.display = 'none';
+            } else if (currentView === 'order' && hasOrderItems) {
+                document.getElementById('btn-share-order').style.display = 'block';
+            }
         }
 
+        updateOrderBadge();
         render();
 
         if ('serviceWorker' in navigator) {
