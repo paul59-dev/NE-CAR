@@ -33,6 +33,26 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
+        /* Désactive le flash bleu/gris de zone tactile sur TOUTE l'application */
+        html, body, button, select, input, div, span, a {
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+
+        /* Supprime le contour bleu de focus de manière agressive sur tous les états */
+        button, select, input, button:focus, select:focus, input:focus, 
+        button:active, select:active, input:active,
+        button:focus-within, select:focus-within, input:focus-within {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Retire l'effet de sélection de texte ou d'éléments si on reste appuyé par erreur */
+        button {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
         body {
             background-color: var(--bg);
             color: var(--text);
