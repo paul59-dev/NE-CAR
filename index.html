@@ -26,20 +26,12 @@
             --red: #E63946;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        /* Désactive le flash bleu/gris de zone tactile sur TOUTE l'application */
+        /* --- BLINDAGE ANTI-CONTOUR BLEU MOBILE --- */
         html, body, button, select, input, div, span, a {
             -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* Supprime le contour bleu de focus de manière agressive sur tous les états */
         button, select, input, button:focus, select:focus, input:focus, 
         button:active, select:active, input:active,
         button:focus-within, select:focus-within, input:focus-within {
@@ -47,10 +39,11 @@
             box-shadow: none !important;
         }
 
-        /* Retire l'effet de sélection de texte ou d'éléments si on reste appuyé par erreur */
-        button {
-            -webkit-user-select: none;
-            user-select: none;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
@@ -64,19 +57,6 @@
 
         header {
             margin-bottom: 24px;
-        }
-
-        button, select, input {
-            /* Supprime le contour bleu de sélection/focus */
-            outline: none !important;
-            
-            /* Supprime la surbrillance bleue par défaut au clic sur mobile (Chrome/Safari) */
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Optionnel : Si tu veux quand même un retour visuel discret lors de la navigation au clavier */
-        button:focus-visible, select:focus-visible, input:focus-visible {
-            outline: 1px solid var(--border-dark) !important;
         }
 
         .brand-container {
@@ -118,6 +98,8 @@
             border-radius: var(--radius-lg);
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         nav button.active {
@@ -167,7 +149,7 @@
             color: var(--bg);
         }
 
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"] {
             width: 100%;
             background-color: var(--gray-light);
             border: 1px solid transparent;
@@ -178,10 +160,47 @@
             transition: all 0.2s ease;
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        input[type="text"]:focus, input[type="number"]:focus {
             outline: none;
             border-color: var(--border-dark);
             background-color: var(--bg);
+        }
+
+        /* --- SÉLECTEUR DE CATÉGORIES PERSONNALISÉ (STYLE BADGES) --- */
+        .custom-select-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 4px;
+            padding-left: 2px;
+        }
+
+        .custom-select-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .select-badge {
+            flex: 1;
+            min-width: 90px;
+            text-align: center;
+            background-color: var(--gray-light);
+            border: 1px solid transparent;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+
+        .select-badge.selected {
+            background-color: var(--gray-dark);
+            color: var(--bg);
+            border-color: var(--gray-dark);
         }
 
         .form-group {
@@ -201,7 +220,7 @@
             align-items: center;
         }
 
-        .form-row input, .form-row select {
+        .form-row input {
             flex: 1;
         }
 
@@ -274,7 +293,6 @@
             color: var(--text);
         }
 
-        /* Moitié du stock ou moins -> Orange */
         .stock-item.alert-orange {
             background-color: #fff9f2;
             border-color: var(--orange);
@@ -284,7 +302,6 @@
             font-weight: 700;
         }
 
-        /* Stock vide -> Rouge Extincteur */
         .stock-item.alert-red {
             background-color: #fff5f5;
             border-color: var(--red);
@@ -373,7 +390,7 @@
             border-radius: var(--radius-md);
         }
 
-        /* --- NOTIFICATIONS POP-UP EN HAUT (TOAST) --- */
+        /* --- NOTIFICATIONS TOAST --- */
         #custom-toast {
             position: fixed;
             top: -70px;
@@ -394,7 +411,7 @@
             top: 20px;
         }
 
-        /* --- MODAL CONFIRMATION PERSONNALISÉ EN HAUT --- */
+        /* --- MODAL CONFIRMATION --- */
         #custom-confirm-overlay {
             position: fixed;
             top: 0;
@@ -462,12 +479,11 @@
 </head>
 <body>
 
-    <!-- Structure pour Toast & Modal en haut de l'écran -->
-    <div id="custom-toast">Message de notification</div>
+    <div id="custom-toast">Notification</div>
     
     <div id="custom-confirm-overlay">
         <div id="custom-confirm-box">
-            <p id="confirm-message">Voulez-vous vraiment effectuer cette action ?</p>
+            <p id="confirm-message">Supprimer définitivement cette pièce ?</p>
             <div class="confirm-actions">
                 <button class="btn-confirm-no" onclick="closeConfirm(false)">Annuler</button>
                 <button class="btn-confirm-yes" onclick="closeConfirm(true)">Supprimer</button>
@@ -510,16 +526,18 @@
         <h2>Nouvelle Pièce</h2>
         <div class="form-group">
             <input type="text" id="item-name" placeholder="Nom de la pièce (ex: Lunettes, Gants, Détecteur...)">
-            <div class="form-row">
-                <select id="item-category">
-                    <option value="SSI" selected>Catégorie : SSI</option>
-                    <option value="EXTINCTEURS">Catégorie : Extincteurs</option>
-                    <option value="DESENFUMAGE">Catégorie : Désenfumage</option>
-                    <option value="OUTILLAGE">Catégorie : Outillage</option>
-                    <option value="EPI">Catégorie : EPI</option>
-                    <option value="AUTRE">Catégorie : Autre</option>
-                </select>
+            
+            <!-- Sélecteur personnalisé sous forme de Badges Tactiles -->
+            <div class="custom-select-label">Catégorie :</div>
+            <div class="custom-select-grid" id="add-category-grid">
+                <div class="select-badge selected" onclick="selectFormCategory(this, 'SSI')">SSI</div>
+                <div class="select-badge" onclick="selectFormCategory(this, 'EXTINCTEURS')">Extincteurs</div>
+                <div class="select-badge" onclick="selectFormCategory(this, 'DESENFUMAGE')">Désenfumage</div>
+                <div class="select-badge" onclick="selectFormCategory(this, 'OUTILLAGE')">Outillage</div>
+                <div class="select-badge" onclick="selectFormCategory(this, 'EPI')">EPI</div>
+                <div class="select-badge" onclick="selectFormCategory(this, 'AUTRE')">Autre</div>
             </div>
+
             <div class="form-row">
                 <input type="number" id="item-max" placeholder="Limite Max (ex: 5)" min="1">
                 <label class="checkbox-label">
@@ -538,12 +556,14 @@
         let editingId = null;
         let currentCategoryFilter = 'TOUT';
         let deleteTargetId = null;
+        
+        // Variable pour stocker la catégorie choisie dans le formulaire d'ajout (Piste par défaut : SSI)
+        let selectedAddCategory = 'SSI';
 
         function saveToStorage() {
             localStorage.setItem('truck_inventory', JSON.stringify(inventory));
         }
 
-        // Système de Toast personnalisé (Haut de l'écran)
         function showToast(message) {
             const toast = document.getElementById('custom-toast');
             toast.textContent = message;
@@ -553,7 +573,6 @@
             }, 2500);
         }
 
-        // Appels pour le modal de confirmation personnalisé
         function askConfirmation(id, message) {
             deleteTargetId = id;
             document.getElementById('confirm-message').textContent = message;
@@ -570,6 +589,23 @@
                 showToast("Pièce supprimée définitivement.");
             }
             deleteTargetId = null;
+        }
+
+        // Gérer le changement graphique de catégorie dans le formulaire de création
+        function selectFormCategory(element, categoryValue) {
+            const siblings = element.parentNode.querySelectorAll('.select-badge');
+            siblings.forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedAddCategory = categoryValue;
+        }
+
+        // Gérer le changement dynamique dans le mode MODIFICATION (Inline)
+        function selectEditCategory(id, element, categoryValue) {
+            const container = document.getElementById(`edit-category-grid-${id}`);
+            const badges = container.querySelectorAll('.select-badge');
+            badges.forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            element.setAttribute('data-chosen-category', categoryValue);
         }
 
         function switchView(viewName) {
@@ -608,11 +644,9 @@
             const nameInput = document.getElementById('item-name');
             const maxInput = document.getElementById('item-max');
             const isMainInput = document.getElementById('item-is-main');
-            const categoryInput = document.getElementById('item-category');
 
             const name = nameInput.value.trim();
             const max = parseInt(maxInput.value, 10);
-            const category = categoryInput.value;
 
             if (!name || isNaN(max) || max <= 0) {
                 showToast("⚠️ Saisie incomplète ou invalide.");
@@ -625,7 +659,7 @@
                 current: 0, 
                 max: max, 
                 isMain: isMainInput.checked,
-                category: category || 'AUTRE'
+                category: selectedAddCategory || 'AUTRE'
             };
             
             inventory.push(newItem);
@@ -634,7 +668,11 @@
 
             nameInput.value = '';
             maxInput.value = '';
-            categoryInput.value = 'SSI';
+            
+            // Remise à zéro graphique du sélecteur
+            const firstBadge = document.getElementById('add-category-grid').querySelector('.select-badge');
+            selectFormCategory(firstBadge, 'SSI');
+            
             showToast("✔️ Pièce ajoutée au catalogue !");
         }
 
@@ -666,7 +704,10 @@
                 const editCurrent = parseInt(document.getElementById(`edit-current-${id}`).value, 10);
                 const editMax = parseInt(document.getElementById(`edit-max-${id}`).value, 10);
                 const editMain = document.getElementById(`edit-main-${id}`).value === 'true';
-                const editCategory = document.getElementById(`edit-category-${id}`).value;
+                
+                // Récupération de la catégorie via le badge actif
+                const activeBadge = document.querySelector(`#edit-category-grid-${id} .select-badge.selected`);
+                const editCategory = activeBadge ? activeBadge.getAttribute('data-value') : item.category;
 
                 if (!editName || isNaN(editMax) || editMax <= 0 || isNaN(editCurrent) || editCurrent < 0) {
                     showToast("⚠️ Erreur dans les champs de modification.");
@@ -707,19 +748,23 @@
                         <div class="stock-item edit-mode-item">
                             <input type="text" id="edit-name-${item.id}" value="${item.name}">
                             <div class="form-row">
-                                <input type="number" id="edit-current-${item.id}" value="${item.current}" min="0">
-                                <input type="number" id="edit-max-${item.id}" value="${item.max}" min="1">
+                                <input type="number" id="edit-current-${item.id}" value="${item.current}" min="0" placeholder="Actuel">
+                                <input type="number" id="edit-max-${item.id}" value="${item.max}" min="1" placeholder="Max">
                             </div>
+                            
+                            <!-- Sélecteur personnalisé en mode édition -->
+                            <div class="custom-select-label">Catégorie :</div>
+                            <div class="custom-select-grid" id="edit-category-grid-${item.id}">
+                                <div class="select-badge ${item.category === 'SSI' ? 'selected' : ''}" data-value="SSI" onclick="selectEditCategory(${item.id}, this, 'SSI')">SSI</div>
+                                <div class="select-badge ${item.category === 'EXTINCTEURS' ? 'selected' : ''}" data-value="EXTINCTEURS" onclick="selectEditCategory(${item.id}, this, 'EXTINCTEURS')">Extincteurs</div>
+                                <div class="select-badge ${item.category === 'DESENFUMAGE' ? 'selected' : ''}" data-value="DESENFUMAGE" onclick="selectEditCategory(${item.id}, this, 'DESENFUMAGE')">Désenfumage</div>
+                                <div class="select-badge ${item.category === 'OUTILLAGE' ? 'selected' : ''}" data-value="OUTILLAGE" onclick="selectEditCategory(${item.id}, this, 'OUTILLAGE')">Outillage</div>
+                                <div class="select-badge ${item.category === 'EPI' ? 'selected' : ''}" data-value="EPI" onclick="selectEditCategory(${item.id}, this, 'EPI')">EPI</div>
+                                <div class="select-badge ${item.category === 'AUTRE' ? 'selected' : ''}" data-value="AUTRE" onclick="selectEditCategory(${item.id}, this, 'AUTRE')">Autre</div>
+                            </div>
+
                             <div class="form-row">
-                                <select id="edit-category-${item.id}">
-                                    <option value="SSI" ${item.category === 'SSI' ? 'selected' : ''}>SSI</option>
-                                    <option value="EXTINCTEURS" ${item.category === 'EXTINCTEURS' ? 'selected' : ''}>Extincteurs</option>
-                                    <option value="DESENFUMAGE" ${item.category === 'DESENFUMAGE' ? 'selected' : ''}>Désenfumage</option>
-                                    <option value="OUTILLAGE" ${item.category === 'OUTILLAGE' ? 'selected' : ''}>Outillage</option>
-                                    <option value="EPI" ${item.category === 'EPI' ? 'selected' : ''}>EPI</option>
-                                    <option value="AUTRE" ${item.category === 'AUTRE' ? 'selected' : ''}>Autre</option>
-                                </select>
-                                <select id="edit-main-${item.id}">
+                                <select id="edit-main-${item.id}" style="width:100%; background-color: var(--gray-light); padding:10px; border-radius:var(--radius-sm); border:none;">
                                     <option value="true" ${item.isMain ? 'selected' : ''}>Principal</option>
                                     <option value="false" ${!item.isMain ? 'selected' : ''}>Réserve</option>
                                 </select>
@@ -731,7 +776,6 @@
                         </div>
                     `;
                 } else {
-                    // Logique dynamique de la classe d'alerte (Orange / Rouge / Neutre)
                     let alertClass = '';
                     if (item.current === 0) {
                         alertClass = 'alert-red'; 
